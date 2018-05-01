@@ -90,7 +90,7 @@ class Realm(models.Model):
             if not hasattr(backend, 'has_perm'):
                 continue
             try:
-                if backend.has_perm(self, perm, obj):
+                if backend.has_perm(self.user, perm, obj):
                     return True
             # A backend can raise `PermissionDenied` to short-circuit
             # permission checking.
