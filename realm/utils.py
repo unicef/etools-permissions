@@ -1,5 +1,3 @@
-from django.contrib.auth import get_user
-from django.contrib.auth.models import AnonymousUser
 from django.utils.crypto import constant_time_compare
 
 from realm.models import Realm
@@ -20,19 +18,13 @@ def get_realm(request):
     If no realm is retrieved, return an instance of `AnonymousUser`.
     """
     realm = None
-    user = get_user(request)
-    if user is not None:
+    if request.user is not None:
         try:
-            realm_id = _get_realm_session_key(request)
-        except KeyError:
+            realm = Realm.objects.get(user__pk=request.user.pk)
+        except Realm.DoesNotExist:
             pass
-        else:
-            try:
-                realm = Realm.objects.get(pk=realm_id)
-            except Realm.DoesNotExist:
-                realm = None
 
-    return realm or AnonymousUser()
+    return realm
 
 
 def set_realm(request, realm):
@@ -47,7 +39,7 @@ def set_realm(request, realm):
         session_auth_hash = realm.get_session_auth_hash()
 
     if SESSION_KEY in request.session:
-        if _get_realm_session_key(request) != realm.pk or (
+        if _get_realm_session_key(request) != realm.user.pk or (
                 session_auth_hash and not constant_time_compare(
                     request.session.get(HASH_SESSION_KEY, ''),
                     session_auth_hash
@@ -59,7 +51,7 @@ def set_realm(request, realm):
     else:
         request.session.cycle_key()
 
-    request.session[SESSION_KEY] = realm._meta.pk.value_to_string(realm)
+    request.session[SESSION_KEY] = Realm._meta.pk.value_to_string(realm)
     request.session[HASH_SESSION_KEY] = session_auth_hash
     if hasattr(request, 'realm'):
         request.realm = realm
