@@ -127,7 +127,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 
-AUTHENTICATION_BACKEND = 'realm.backends.RealmBackend'
+AUTHENTICATION_BACKENDS = ['realm.backends.RealmBackend']
 # AUTH_USER_MODEL = 'realm.User'
 AUTH_REQUIRES_ORGANIZATION = True
 AUTH_REQUIRES_WORKSPACE= True
