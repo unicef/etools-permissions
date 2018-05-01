@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Permission
+from django.core.exceptions import PermissionDenied
 
 from realm.backends import RealmBackend
 from tests.base import BaseTestCase
@@ -19,6 +20,15 @@ class TestRealmBackend(BaseTestCase):
             self.permission.codename
         )
         self.backend = RealmBackend()
+
+    def test_get_realm_exception(self):
+        with self.assertRaises(PermissionDenied):
+            self.backend._get_realm(None)
+
+    def test_get_realm(self):
+        user= UserFactory()
+        realm = RealmFactory(user=user, workspace=self.tenant)
+        self.assertEqual(self.backend._get_realm(user), realm)
 
     def test_internal_get_realm_permissions_empty(self):
         realm = RealmFactory(workspace=self.tenant)
@@ -141,17 +151,23 @@ class TestRealmBackend(BaseTestCase):
 
     def test_has_perm_user_not_active(self):
         user = UserFactory(is_active=False)
-        realm = RealmFactory(user=user, workspace=self.tenant)
-        self.assertFalse(self.backend.has_perm(realm, self.permission))
+        RealmFactory(user=user, workspace=self.tenant)
+        self.assertFalse(self.backend.has_perm(user, self.permission))
+
+    def test_has_perm_no_realm(self):
+        user = UserFactory(is_active=False)
+        self.assertFalse(self.backend.has_perm(user, self.permission))
 
     def test_has_perm_false(self):
-        realm = RealmFactory(workspace=self.tenant)
-        self.assertFalse(self.backend.has_perm(realm, self.permission))
+        user = UserFactory()
+        RealmFactory(user=user, workspace=self.tenant)
+        self.assertFalse(self.backend.has_perm(user, self.permission))
 
     def test_has_perm(self):
-        realm = RealmFactory(workspace=self.tenant)
+        user = UserFactory()
+        realm = RealmFactory(user=user, workspace=self.tenant)
         realm.realm_permissions.add(self.permission)
-        self.assertTrue(self.backend.has_perm(realm, self.permission_label))
+        self.assertTrue(self.backend.has_perm(user, self.permission_label))
 
     def test_has_module_perms_user_not_active(self):
         user = UserFactory(is_active=False)

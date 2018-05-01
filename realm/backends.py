@@ -1,10 +1,17 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Permission
+from django.core.exceptions import PermissionDenied
 
 from realm.models import Realm
 
 
 class RealmBackend(ModelBackend):
+    def _get_realm(self, user):
+        try:
+            return Realm.objects.get(user=user)
+        except Realm.DoesNotExist:
+            raise PermissionDenied
+
     def _get_realm_permissions(self, realm_obj):
         return realm_obj.realm_permissions.all()
 
@@ -67,10 +74,10 @@ class RealmBackend(ModelBackend):
             realm_obj._perm_cache.update(self.get_group_permissions(realm_obj))
         return realm_obj._perm_cache
 
-    def has_perm(self, realm_obj, perm, obj=None):
-        if not realm_obj.user.is_active:
+    def has_perm(self, user, perm, obj=None):
+        if not user.is_active:
             return False
-        return perm in self.get_all_permissions(realm_obj, obj)
+        return perm in self.get_all_permissions(self._get_realm(user), obj)
 
     def has_module_perms(self, realm_obj, app_label):
         """
