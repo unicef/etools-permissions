@@ -16,14 +16,14 @@ def create_tenant(domain, name):
 
     try:
         tenant = TenantModel.objects.get(
-            domain_url=TENANT_DOMAIN,
-            schema_name=SCHEMA_NAME,
+            domain_url=domain,
+            schema_name=name,
         )
     except TenantModel.DoesNotExist:
         tenant = TenantModel(
-            domain_url=TENANT_DOMAIN,
-            schema_name=SCHEMA_NAME,
-            name=SCHEMA_NAME,
+            domain_url=domain,
+            schema_name=name,
+            name=name,
         )
         tenant.save(verbosity=0)
     return tenant

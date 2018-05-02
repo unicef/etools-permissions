@@ -64,7 +64,7 @@ class TestOrganizationListAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant_other,
         )
-        realm.realm_permissions.add(self.permission)
+        realm.realm_permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list'),
@@ -126,6 +126,22 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             workspace=self.tenant,
         )
         realm.realm_permissions.add(self.permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                'demo:organization-api-detail',
+                args=[self.organization.pk]
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_invalid_workspace(self):
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization,
+            workspace=self.tenant_other,
+        )
+        realm.realm_permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
