@@ -58,6 +58,19 @@ class TestOrganizationListAPIView(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_get_invalid_workspace(self):
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization,
+            workspace=self.tenant_other,
+        )
+        realm.realm_permissions.add(self.permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse('demo:organization-api-list'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_get(self):
         realm = RealmFactory(
             user=self.user,

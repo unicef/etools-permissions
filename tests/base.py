@@ -11,6 +11,24 @@ TENANT_DOMAIN = 'tenant.example.com'
 SCHEMA_NAME = 'test'
 
 
+def create_tenant(domain, name):
+    TenantModel = get_tenant_model()
+
+    try:
+        tenant = TenantModel.objects.get(
+            domain_url=TENANT_DOMAIN,
+            schema_name=SCHEMA_NAME,
+        )
+    except TenantModel.DoesNotExist:
+        tenant = TenantModel(
+            domain_url=TENANT_DOMAIN,
+            schema_name=SCHEMA_NAME,
+            name=SCHEMA_NAME,
+        )
+        tenant.save(verbosity=0)
+    return tenant
+
+
 class BaseTestCase(TenantTestCase):
     client_class = APIClient
 
@@ -18,19 +36,8 @@ class BaseTestCase(TenantTestCase):
     def setUpClass(cls):
         cls.sync_shared()
 
-        TenantModel = get_tenant_model()
-        try:
-            cls.tenant = TenantModel.objects.get(
-                domain_url=TENANT_DOMAIN,
-                schema_name=SCHEMA_NAME,
-            )
-        except TenantModel.DoesNotExist:
-            cls.tenant = TenantModel(
-                domain_url=TENANT_DOMAIN,
-                schema_name=SCHEMA_NAME,
-                name=SCHEMA_NAME,
-            )
-            cls.tenant.save(verbosity=0)
+        cls.tenant = create_tenant(TENANT_DOMAIN, SCHEMA_NAME)
+        cls.tenant_other = create_tenant("other.example.com", "other")
 
         connection.set_tenant(cls.tenant)
         cls.cls_atomics = cls._enter_atomics()

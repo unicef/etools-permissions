@@ -14,15 +14,25 @@ def _get_realm_session_key(request):
 
 def get_realm(request):
     """
-    Return the realm model instance associated with the given request session.
-    If no realm is retrieved, return an instance of `AnonymousUser`.
+    Currently not setting realm in session, so using user to get realm
+    Expect tenant attribute to be set on request in Workspace in use,
+    if user not set or user is superuser, then no tenant
     """
     realm = None
-    if request.user is not None:
-        try:
-            realm = Realm.objects.get(user__pk=request.user.pk)
-        except Realm.DoesNotExist:
-            pass
+    if request.user is not None and not request.user.is_superuser:
+        if hasattr(request, "tenant"):
+            try:
+                realm = Realm.objects.get(
+                    user__pk=request.user.pk,
+                    workspace=request.tenant,
+                )
+            except Realm.DoesNotExist:
+                pass
+        else:
+            try:
+                realm = Realm.objects.get(user__pk=request.user.pk)
+            except Realm.DoesNotExist:
+                pass
 
     return realm
 
