@@ -1,6 +1,6 @@
 from django.db.utils import IntegrityError
 
-from realm.models import Realm
+from realm.models import Permission, Realm
 from tests.base import SCHEMA_NAME, BaseTestCase
 from tests.factories import (
     GroupFactory,
@@ -11,14 +11,115 @@ from tests.factories import (
 )
 
 
+class TestPermission(BaseTestCase):
+    def test_filter_for_wildcards(self):
+        permission = PermissionFactory(
+            permission=Permission.VIEW,
+            target='realm.permission.*'
+        )
+
+        targets = [
+            'realm.permission.permission',
+            'realm.permission.permission_type',
+            'realm.permission.target',
+        ]
+        permissions = Permission.objects.filter_by_targets(targets)
+        self.assertSequenceEqual(permissions, [permission])
+
+    def test_apply_permissions_different_kinds(self):
+        PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target='realm.permission.permission'
+        )
+        PermissionFactory(
+            permission=Permission.EDIT,
+            permission_type=Permission.TYPE_ALLOW,
+            target='realm.permission.target'
+        )
+
+        targets = [
+            'realm.permission.permission',
+            'realm.permission.permission_type',
+            'realm.permission.target',
+        ]
+
+        allowed_targets = Permission.apply_permissions(
+            Permission.objects.all(),
+            targets,
+            Permission.VIEW
+        )
+        self.assertSequenceEqual(
+            allowed_targets,
+            ['realm.permission.permission', 'realm.permission.target']
+        )
+
+        allowed_targets = Permission.apply_permissions(
+            Permission.objects.all(),
+            targets,
+            Permission.EDIT,
+        )
+        self.assertSequenceEqual(allowed_targets, ['realm.permission.target'])
+
+    def test_apply_permissions_order(self):
+        PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target='realm.permission.*'
+        )
+        PermissionFactory(
+            permission=Permission.VIEW,
+            target='realm.permission.target',
+            permission_type=Permission.TYPE_DISALLOW,
+        )
+        PermissionFactory(
+            permission=Permission.VIEW,
+            target='realm.permission.permission_type',
+            permission_type=Permission.TYPE_DISALLOW,
+            condition=['condition1']
+        )
+
+        targets = [
+            'realm.permission.permission',
+            'realm.permission.permission_type',
+            'realm.permission.target',
+        ]
+
+        allowed_targets = Permission.apply_permissions(
+            Permission.objects.all(),
+            targets,
+            Permission.VIEW,
+        )
+        self.assertSequenceEqual(
+            allowed_targets,
+            ['realm.permission.permission']
+        )
+
+        PermissionFactory(
+            permission=Permission.VIEW,
+            target='realm.permission.target',
+            permission_type=Permission.TYPE_ALLOW,
+            condition=['condition1', 'condition2']
+        )
+
+        allowed_targets = Permission.apply_permissions(
+            Permission.objects.all(),
+            targets,
+            Permission.VIEW,
+        )
+        self.assertSequenceEqual(
+            allowed_targets,
+            ['realm.permission.target', 'realm.permission.permission']
+        )
+
+
 class TestRealm(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.permission = PermissionFactory()
-        self.permission_app_label = self.permission.content_type.app_label
         self.permission_label = "{}.{}".format(
-            self.permission_app_label,
-            self.permission.codename
+            self.permission.permission,
+            self.permission.target,
         )
 
     def test_str_user(self):
@@ -113,16 +214,16 @@ class TestRealm(BaseTestCase):
         realm.realm_permissions.add(self.permission)
         self.assertTrue(realm.has_perms([self.permission_label]))
 
-    def test_has_module_perms_superuser(self):
-        user = UserFactory(is_superuser=True)
-        realm = RealmFactory(user=user, workspace=self.tenant)
-        self.assertTrue(realm.has_module_perms(self.permission_app_label))
+    # def test_has_module_perms_superuser(self):
+    #     user = UserFactory(is_superuser=True)
+    #     realm = RealmFactory(user=user, workspace=self.tenant)
+    #     self.assertTrue(realm.has_module_perms(self.permission_app_label))
 
-    def test_has_module_perms_false(self):
-        realm = RealmFactory(workspace=self.tenant)
-        self.assertFalse(realm.has_module_perms(self.permission_app_label))
+    # def test_has_module_perms_false(self):
+    #     realm = RealmFactory(workspace=self.tenant)
+    #     self.assertFalse(realm.has_module_perms(self.permission_app_label))
 
-    def test_has_module_perms(self):
-        realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
-        self.assertTrue(realm.has_module_perms(self.permission_app_label))
+    # def test_has_module_perms(self):
+    #     realm = RealmFactory(workspace=self.tenant)
+    #     realm.realm_permissions.add(self.permission)
+    #     self.assertTrue(realm.has_module_perms(self.permission_app_label))

@@ -4,7 +4,7 @@ from rest_framework.generics import RetrieveAPIView, ListAPIView
 
 from demo.example.models import Organization
 from demo.example.serializers import OrganizationSerializer
-from realm.permissions import RealmModelPermissions
+from realm.permissions import RealmPermission
 
 
 class OrganizationListView(ListView):
@@ -14,12 +14,12 @@ class OrganizationListView(ListView):
 class OrganizationListAPIView(ListAPIView):
     queryset = Organization.objects.all()
     authentication_classes = (SessionAuthentication, )
-    permission_classes = (RealmModelPermissions, )
+    permission_classes = (RealmPermission, )
     serializer_class = OrganizationSerializer
 
 
 class OrganizationDetailAPIView(RetrieveAPIView):
     queryset = Organization.objects.all()
     authentication_classes = (SessionAuthentication, )
-    permission_classes = (RealmModelPermissions, )
+    permission_classes = (RealmPermission, )
     serializer_class = OrganizationSerializer

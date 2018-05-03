@@ -1,7 +1,7 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from rest_framework import status
 
+from realm.models import Permission
 from tests.base import BaseTestCase
 from tests.factories import (
     OrganizationFactory,
@@ -28,11 +28,14 @@ class TestOrganizationListAPIView(BaseTestCase):
         super().setUp()
         self.organization = OrganizationFactory()
         self.permission = PermissionFactory(
-            content_type=ContentType.objects.get_for_model(self.organization),
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_DISALLOW,
+            target="realm.permission.*"
         )
         self.view_permission = PermissionFactory(
-            content_type=ContentType.objects.get_for_model(self.organization),
-            codename="view_organization"
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.*"
         )
 
     def test_get_not_logged_in(self):
@@ -92,11 +95,14 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         super().setUp()
         self.organization = OrganizationFactory()
         self.permission = PermissionFactory(
-            content_type=ContentType.objects.get_for_model(self.organization)
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_DISALLOW,
+            target="realm.permission.*"
         )
         self.view_permission = PermissionFactory(
-            content_type=ContentType.objects.get_for_model(self.organization),
-            codename="view_organization"
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.*"
         )
 
     def test_get_not_logged_in(self):

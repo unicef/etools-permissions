@@ -1,8 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 
-from realm.models import Realm
+from realm.models import Permission, Realm
 
 
 class RealmBackend(ModelBackend):
@@ -41,13 +40,17 @@ class RealmBackend(ModelBackend):
                     '_get_{}_permissions'.format(from_name)
                 )(realm_obj)
             perms = perms.values_list(
-                'content_type__app_label',
-                'codename'
+                'permission',
+                'permission_type',
+                'target',
             ).order_by()
             setattr(
                 realm_obj,
                 perm_cache_name,
-                {"{}.{}".format(ct, name) for ct, name in perms}
+                {"{}.{}".format(
+                    perm,
+                    target,
+                ) for perm, perm_type, target in perms}
             )
         return getattr(realm_obj, perm_cache_name)
 

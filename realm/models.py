@@ -1,20 +1,230 @@
+from django.apps import apps
 from django.conf import settings
-from django.contrib import auth
-from django.contrib.auth.models import Group, Permission#, AbstractUser
+from django.contrib.auth import get_backends
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.translation import ugettext as _
 
+from realm.conditions import BaseCondition
+from realm.utils import collect_parent_models, collect_child_models
 
-# class User(AbstractUser):
-#     # All methods to get permissions for a user needs to go through
-#     # the Realm class, so we clear the permission methods for the User
-#     get_group_permissions = None
-#     get_all_permissions = None
-#     has_perm = None
-#     has_perms = None
-#     has_module_perms = None
+
+class PermissionQuerySet(models.QuerySet):
+    def filter_by_context(self, context):
+        context = list(context)
+        i = 0
+        while i < len(context):
+            if isinstance(context[i], BaseCondition):
+                context[i] = context[i].to_internal_value()
+
+            if isinstance(context[i], (list, tuple)):
+                context.extend(context[i])
+                context.pop(i)
+            else:
+                i += 1
+
+        return self.filter(condition__contained_by=context)
+
+    def filter_by_targets(self, targets):
+        targets = list(targets)
+
+        i = 0
+        parent_map = dict()
+        while i < len(targets):
+            target = targets[i]
+
+            model, field_name = Permission.parse_target(target)
+            if model in parent_map:
+                parents = parent_map[model]
+            else:
+                parents = collect_parent_models(model, levels=1)
+                parent_map[model] = parents
+
+            targets.extend([Permission.get_target(parent, field_name) for parent in parents])
+
+            i += 1
+
+        wildcards = list(set(map(lambda target: target.rsplit('.', 1)[0] + '.*', targets)))
+        targets = targets + wildcards
+
+        return self.filter(target__in=targets)
+
+
+class Permission(models.Model):
+    """Model describes field-level permissions.
+
+    Provide different set of readable/writable fields in dependency
+    from current context.
+
+    User roles and target state are defined in conditions, so we don't
+    need to strongly determine user role.
+    Then can be combined to grant more privileges for user in special cases.
+    """
+
+    VIEW = "view"
+    EDIT = "edit"
+    ACTION = "action"
+    PERMISSION_CHOICES = (
+        (VIEW, _('View')),
+        (EDIT, _('Edit')),
+        (ACTION, _('Action')),
+    )
+
+    TYPE_ALLOW = "allow"
+    TYPE_DISALLOW = "disallow"
+    TYPE_CHOICES = (
+        (TYPE_ALLOW, _('Allow')),
+        (TYPE_DISALLOW, _('Disallow')),
+    )
+
+    permission = models.CharField(
+        max_length=10,
+        verbose_name=_('permission'),
+        choices=PERMISSION_CHOICES,
+    )
+    permission_type = models.CharField(
+        max_length=10,
+        verbose_name=_('permission type'),
+        choices=TYPE_CHOICES,
+        default=TYPE_ALLOW,
+    )
+    target = models.CharField(
+        max_length=100,
+        verbose_name=_('target'),
+    )
+    condition = ArrayField(
+        models.CharField(max_length=100),
+        verbose_name=_('condition'),
+        default=[],
+        blank=True,
+    )
+
+    objects = PermissionQuerySet.as_manager()
+
+    def __str__(self):
+        return '{} permission to {} {} at {}'.format(
+            self.permission_type.title(),
+            self.permission,
+            self.target,
+            self.condition,
+        )
+
+    @staticmethod
+    def get_target(model, field):
+        if hasattr(field, 'name'):
+            field = field.name
+        elif hasattr(field, 'field_name'):
+            field = field.field_name
+
+        return '.'.join([model._meta.app_label, model._meta.model_name, field])
+
+    @staticmethod
+    def parse_target(target):
+        app_label, model_name, field = target.split('.')
+        model = apps.get_model(app_label, model_name)
+        return model, field
+
+    @classmethod
+    def apply_permissions(cls, permissions, targets, kind):
+        """apply permissions to targets"""
+        permissions = list(permissions)
+
+        i = 0
+        children_map = dict()
+        while i < len(permissions):
+            perm = permissions[i]
+
+            model, field_name = Permission.parse_target(perm.target)
+            if model in children_map:
+                children = children_map[model]
+            else:
+                children = collect_child_models(model, levels=1)
+                children_map[model] = children
+
+            # apply permissions to childs, in case of inheritance
+            imaginary_permissions = [
+                Permission(
+                    permission=perm.permission,
+                    permission_type=perm.permission_type,
+                    condition=perm.condition,
+                    target=Permission.get_target(child, field_name)
+                )
+                for child in children
+            ]
+
+            # permissions can be defined both for children and parent,
+            # so we need to priority children permissions from automatically
+            # generated parent-based permissions.
+            perm.image_level = getattr(perm, 'image_level', 0)
+            for imaginary_perm in imaginary_permissions:
+                imaginary_perm.image_level = perm.image_level + 1
+
+            permissions.extend(imaginary_permissions)
+
+            i += 1
+
+        # order permissions in dependency from their level
+        # and complexity of condition
+        permissions.sort(
+            key=lambda perm: (
+                perm.image_level, -len(perm.condition), '*' in perm.target
+            )
+        )
+
+        allowed_targets = []
+        targets = set(targets)
+        for perm in permissions:
+            if kind == cls.VIEW and perm.permission_type == cls.TYPE_ALLOW:
+                # If you can edit field you can view it too.
+                if perm.permission not in [cls.VIEW, cls.EDIT]:
+                    continue
+            elif perm.permission != kind:
+                continue
+
+            if perm.target[-1] == '*':
+                affected_targets = set(filter(lambda target: target.startswith(perm.target[:-1]), targets))
+            else:
+                affected_targets = {perm.target}
+
+            if not affected_targets:
+                continue
+
+            if perm.permission_type == cls.TYPE_ALLOW and affected_targets & targets:
+                allowed_targets.extend(affected_targets)
+
+            targets -= affected_targets
+
+        return allowed_targets
+
+
+class GroupManager(models.Manager):
+    use_in_migrations = True
+
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
+class Group(models.Model):
+    name = models.CharField(_('name'), max_length=80, unique=True)
+    permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_('permissions'),
+        blank=True,
+    )
+
+    objects = GroupManager()
+
+    class Meta:
+        verbose_name = _('group')
+        verbose_name_plural = _('groups')
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+        return (self.name,)
 
 
 class Realm(models.Model):
@@ -61,14 +271,14 @@ class Realm(models.Model):
         return only permissions matching this object.
         """
         permissions = set()
-        for backend in auth.get_backends():
+        for backend in get_backends():
             if hasattr(backend, "get_group_permissions"):
                 permissions.update(backend.get_group_permissions(self, obj))
         return permissions
 
     def get_all_permissions(self, obj=None):
         permissions = set()
-        for backend in auth.get_backends():
+        for backend in get_backends():
             if hasattr(backend, "get_all_permissions"):
                 permissions.update(backend.get_all_permissions(self, obj))
         return permissions
@@ -86,7 +296,7 @@ class Realm(models.Model):
             return True
 
         # Otherwise we need to check the backends.
-        for backend in auth.get_backends():
+        for backend in get_backends():
             if not hasattr(backend, 'has_perm'):
                 continue
             try:
@@ -105,23 +315,23 @@ class Realm(models.Model):
         """
         return all(self.has_perm(perm, obj) for perm in perm_list)
 
-    def has_module_perms(self, app_label):
-        """
-        Return True if the user has any permissions in the given app label.
-        Use simlar logic as has_perm(), above.
-        """
-        # Active superusers have all permissions.
-        if self.user.is_active and self.user.is_superuser:
-            return True
+    # def has_module_perms(self, app_label):
+    #     """
+    #     Return True if the user has any permissions in the given app label.
+    #     Use simlar logic as has_perm(), above.
+    #     """
+    #     # Active superusers have all permissions.
+    #     if self.user.is_active and self.user.is_superuser:
+    #         return True
 
-        for backend in auth.get_backends():
-            if not hasattr(backend, 'has_module_perms'):
-                continue
-            try:
-                if backend.has_module_perms(self, app_label):
-                    return True
-            # A backend can raise `PermissionDenied` to short-circuit
-            # permission checking.
-            except PermissionDenied:
-                return False
-        return False
+    #     for backend in get_backends():
+    #         if not hasattr(backend, 'has_module_perms'):
+    #             continue
+    #         try:
+    #             if backend.has_module_perms(self, app_label):
+    #                 return True
+    #         # A backend can raise `PermissionDenied` to short-circuit
+    #         # permission checking.
+    #         except PermissionDenied:
+    #             return False
+    #     return False
