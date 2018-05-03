@@ -23,8 +23,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Group',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=80, unique=True, verbose_name='name')),
+                ('id', models.AutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
+                ('name', models.CharField(
+                    max_length=80,
+                    unique=True,
+                    verbose_name='name'
+                )),
             ],
             options={
                 'verbose_name': 'group',
@@ -37,27 +46,81 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Permission',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('permission', models.CharField(choices=[('view', 'View'), ('edit', 'Edit'), ('action', 'Action')], max_length=10, verbose_name='permission')),
-                ('permission_type', models.CharField(choices=[('allow', 'Allow'), ('disallow', 'Disallow')], default='allow', max_length=10, verbose_name='permission type')),
+                ('id', models.AutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
+                ('permission', models.CharField(
+                    choices=[('view', 'View'), ('edit', 'Edit'), ('action', 'Action')],
+                    max_length=10,
+                    verbose_name='permission'
+                )),
+                ('permission_type', models.CharField(
+                    choices=[('allow', 'Allow'), ('disallow', 'Disallow')], default='allow',
+                    max_length=10,
+                    verbose_name='permission type'
+                )),
                 ('target', models.CharField(max_length=100, verbose_name='target')),
-                ('condition', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, default=[], size=None, verbose_name='condition')),
+                ('condition', django.contrib.postgres.fields.ArrayField(
+                    base_field=models.CharField(max_length=100),
+                    blank=True,
+                    default=[],
+                    size=None,
+                    verbose_name='condition'
+                )),
             ],
         ),
         migrations.CreateModel(
             name='Realm',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this realm belongs to. A realm will get all permissions granted to each of their groups.', related_name='realm_set', related_query_name='realm', to='realm.Group', verbose_name='groups')),
-                ('organization', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='example.Organization')),
-                ('realm_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this realm.', related_name='realm_set', related_query_name='realm', to='realm.Permission', verbose_name='realm permissions')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('workspace', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='tenant.Workspace')),
+                ('id', models.AutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
+                ('groups', models.ManyToManyField(
+                    blank=True,
+                    help_text='The groups this realm belongs to. '
+                    'A realm will get all permissions granted to each of their groups.',
+                    related_name='realm_set',
+                    related_query_name='realm',
+                    to='realm.Group',
+                    verbose_name='groups'
+                )),
+                ('organization', models.ForeignKey(
+                    null=True,
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='example.Organization'
+                )),
+                ('realm_permissions', models.ManyToManyField(
+                    blank=True,
+                    help_text='Specific permissions for this realm.',
+                    related_name='realm_set',
+                    related_query_name='realm',
+                    to='realm.Permission',
+                    verbose_name='realm permissions'
+                )),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
+                ('workspace', models.ForeignKey(
+                    null=True,
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='tenant.Workspace'
+                )),
             ],
         ),
         migrations.AddField(
             model_name='group',
             name='permissions',
-            field=models.ManyToManyField(blank=True, to='realm.Permission', verbose_name='permissions'),
+            field=models.ManyToManyField(
+                blank=True,
+                to='realm.Permission',
+                verbose_name='permissions'
+            ),
         ),
     ]

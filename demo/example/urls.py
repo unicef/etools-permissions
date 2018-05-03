@@ -12,12 +12,12 @@ urlpatterns = [
         OrganizationListView.as_view(),
         name='organization-list'
     ),
-     url(
+    url(
         r'^api/organization/$',
         OrganizationListAPIView.as_view(),
         name='organization-api-list'
     ),
-     url(
+    url(
         r'^api/organization/(?P<pk>\d+)/$',
         OrganizationDetailAPIView.as_view(),
         name='organization-api-detail'

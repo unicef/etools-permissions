@@ -93,16 +93,16 @@ DATABASE_ROUTERS = (
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',  # noqa
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',  # noqa
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',  # noqa
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # noqa
     },
 ]
 
@@ -130,6 +130,6 @@ DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 AUTHENTICATION_BACKENDS = ['realm.backends.RealmBackend']
 # AUTH_USER_MODEL = 'realm.User'
 AUTH_REQUIRES_ORGANIZATION = True
-AUTH_REQUIRES_WORKSPACE= True
+AUTH_REQUIRES_WORKSPACE = True
 ORGANIZATION_MODEL = 'example.Organization'
 WORKSPACE_MODEL = 'tenant.Workspace'

@@ -25,7 +25,7 @@ class TestRealmBackend(BaseTestCase):
             self.backend._get_realm(None)
 
     def test_get_realm(self):
-        user= UserFactory()
+        user = UserFactory()
         realm = RealmFactory(user=user, workspace=self.tenant)
         self.assertEqual(self.backend._get_realm(user), realm)
 
