@@ -1,6 +1,5 @@
 from django.db.utils import IntegrityError
 
-from realm.conditions import BaseCondition
 from realm.models import Group, Permission, Realm
 from tests.base import SCHEMA_NAME, BaseTestCase
 from tests.factories import (
@@ -67,7 +66,7 @@ class TestPermission(BaseTestCase):
         permission = PermissionFactory(
             permission=Permission.VIEW,
             target="realm.permission.*",
-            condition=["basic",]
+            condition=["basic"]
         )
         contexts = [
             "basic"
@@ -79,7 +78,7 @@ class TestPermission(BaseTestCase):
         PermissionFactory(
             permission=Permission.VIEW,
             target="realm.permission.*",
-            condition=["basic",]
+            condition=["basic"]
         )
         contexts = [
             "wrong"
@@ -91,13 +90,22 @@ class TestPermission(BaseTestCase):
         permission = PermissionFactory(
             permission=Permission.VIEW,
             target="realm.permission.*",
-            condition=["basic",]
+            condition=["basic"]
         )
         contexts = [
             ["basic"]
         ]
         permissions = Permission.objects.filter_by_context(contexts)
         self.assertSequenceEqual(permissions, [permission])
+
+    def test_get_target(self):
+        PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target='realm.permission.*'
+        )
+        target = Permission.get_target(Permission, "permission")
+        self.assertEqual(target, "realm.permission.permission")
 
     def test_apply_permissions_different_kinds(self):
         PermissionFactory(
