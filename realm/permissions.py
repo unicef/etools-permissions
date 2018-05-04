@@ -20,17 +20,6 @@ class RealmPermission(BasePermission):
         )],
     }
 
-    def get_parent(self, view):
-        parent_class = getattr(view, 'parent', None)
-        if not parent_class:
-            return
-
-        return parent_class(
-            request=view.request,
-            kwargs=view.kwargs,
-            lookup_url_kwarg=view.parent_lookup_kwarg
-        )
-
     def get_required_permissions(self, method, model_cls):
         """
         Given a model and an HTTP method, return the list of permission
