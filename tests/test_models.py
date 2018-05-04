@@ -1,6 +1,7 @@
 from django.db.utils import IntegrityError
 
-from realm.models import Permission, Realm
+from realm.conditions import BaseCondition
+from realm.models import Group, Permission, Realm
 from tests.base import SCHEMA_NAME, BaseTestCase
 from tests.factories import (
     GroupFactory,
@@ -12,7 +13,18 @@ from tests.factories import (
 
 
 class TestPermission(BaseTestCase):
-    def test_filter_for_wildcards(self):
+    def test_str(self):
+        permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="realm.permission.*"
+        )
+        self.assertEqual(
+            str(permission),
+            "Allow permission to view realm.permission.* at []"
+        )
+
+    def test_filter_by_targets_for_wildcards(self):
         permission = PermissionFactory(
             permission=Permission.VIEW,
             target='realm.permission.*'
@@ -24,6 +36,67 @@ class TestPermission(BaseTestCase):
             'realm.permission.target',
         ]
         permissions = Permission.objects.filter_by_targets(targets)
+        self.assertSequenceEqual(permissions, [permission])
+
+    def test_filter_by_targets_empty(self):
+        PermissionFactory(
+            permission=Permission.VIEW,
+            target='realm.permission.*'
+        )
+
+        targets = [
+            'realm.group.*',
+        ]
+        permissions = Permission.objects.filter_by_targets(targets)
+        self.assertSequenceEqual(permissions, [])
+
+    def test_filter_by_targets(self):
+        permission = PermissionFactory(
+            permission=Permission.VIEW,
+            target='realm.permission.*'
+        )
+
+        targets = [
+            'realm.permission.*',
+            'realm.group.*'
+        ]
+        permissions = Permission.objects.filter_by_targets(targets)
+        self.assertSequenceEqual(permissions, [permission])
+
+    def test_filter_by_context(self):
+        permission = PermissionFactory(
+            permission=Permission.VIEW,
+            target="realm.permission.*",
+            condition=["basic",]
+        )
+        contexts = [
+            "basic"
+        ]
+        permissions = Permission.objects.filter_by_context(contexts)
+        self.assertSequenceEqual(permissions, [permission])
+
+    def test_filter_by_context_empty(self):
+        PermissionFactory(
+            permission=Permission.VIEW,
+            target="realm.permission.*",
+            condition=["basic",]
+        )
+        contexts = [
+            "wrong"
+        ]
+        permissions = Permission.objects.filter_by_context(contexts)
+        self.assertSequenceEqual(permissions, [])
+
+    def test_filter_by_context_list(self):
+        permission = PermissionFactory(
+            permission=Permission.VIEW,
+            target="realm.permission.*",
+            condition=["basic",]
+        )
+        contexts = [
+            ["basic"]
+        ]
+        permissions = Permission.objects.filter_by_context(contexts)
         self.assertSequenceEqual(permissions, [permission])
 
     def test_apply_permissions_different_kinds(self):
@@ -111,6 +184,20 @@ class TestPermission(BaseTestCase):
             allowed_targets,
             ['realm.permission.target', 'realm.permission.permission']
         )
+
+
+class TestGroup(BaseTestCase):
+    def test_str(self):
+        group = GroupFactory(name="Group")
+        self.assertEqual(str(group), "Group")
+
+    def test_natural_key(self):
+        group = GroupFactory(name="Group")
+        self.assertEqual(group.natural_key(), ("Group",))
+
+    def test_get_by_natural_key(self):
+        group = GroupFactory(name="Group")
+        self.assertEqual(Group.objects.get_by_natural_key("Group"), group)
 
 
 class TestRealm(BaseTestCase):
