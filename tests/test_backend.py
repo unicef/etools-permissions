@@ -13,8 +13,12 @@ from tests.factories import (
 
 class TestRealmBackend(BaseTestCase):
     def setUp(self):
-        self.permission = PermissionFactory()
-        self.permission_label = "{}.{}".format(
+        self.permission = PermissionFactory(
+            permission_type=Permission.TYPE_ALLOW,
+            permission=Permission.EDIT,
+        )
+        self.permission_label = "{}.{}.{}".format(
+            self.permission.permission_type,
             self.permission.permission,
             self.permission.target,
         )
@@ -151,22 +155,22 @@ class TestRealmBackend(BaseTestCase):
     def test_has_perm_user_not_active(self):
         user = UserFactory(is_active=False)
         RealmFactory(user=user, workspace=self.tenant)
-        self.assertFalse(self.backend.has_perm(user, self.permission))
+        self.assertFalse(self.backend.has_perm(user, self.permission.target))
 
     def test_has_perm_no_realm(self):
         user = UserFactory(is_active=False)
-        self.assertFalse(self.backend.has_perm(user, self.permission))
+        self.assertFalse(self.backend.has_perm(user, self.permission.target))
 
     def test_has_perm_false(self):
         user = UserFactory()
         RealmFactory(user=user, workspace=self.tenant)
-        self.assertFalse(self.backend.has_perm(user, self.permission))
+        self.assertFalse(self.backend.has_perm(user, self.permission.target))
 
     def test_has_perm(self):
         user = UserFactory()
         realm = RealmFactory(user=user, workspace=self.tenant)
         realm.realm_permissions.add(self.permission)
-        self.assertTrue(self.backend.has_perm(user, self.permission_label))
+        self.assertTrue(self.backend.has_perm(user, self.permission.target))
 
     # def test_has_module_perms_user_not_active(self):
     #     user = UserFactory(is_active=False)
