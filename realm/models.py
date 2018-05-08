@@ -46,7 +46,7 @@ class PermissionQuerySet(models.QuerySet):
 
             i += 1
 
-        wildcards = list(set(map(lambda target: target.rsplit('.', 1)[0] + '.*', targets)))
+        wildcards = list(set([t.rsplit('.', 1)[0] + '.*' for t in targets]))
         targets = targets + wildcards
 
         return self.filter(target__in=targets)
@@ -184,7 +184,9 @@ class Permission(models.Model):
                 continue
 
             if perm.target[-1] == '*':
-                affected_targets = set(filter(lambda target: target.startswith(perm.target[:-1]), targets))
+                affected_targets = set(
+                    [t for t in targets if t.startswith(perm.target[:-1])]
+                )
             else:
                 affected_targets = {perm.target}
 
