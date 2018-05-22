@@ -78,6 +78,7 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'tenant_schemas.postgresql_backend',
+        'HOST': '127.0.0.1',
         'NAME': 'etools_realm',
         'USER': 'postgres',
     }
