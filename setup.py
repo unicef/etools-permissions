@@ -1,14 +1,24 @@
 # -*- coding: utf-8 -*-
-
+import ast
 import os
 import codecs
+import re
 import sys
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+from setuptools.command.test import test as TestCommand
 
-VERSION = __import__('realm').get_version()
-HERE = os.path.dirname(__file__)
+HERE = os.path.abspath(os.path.dirname(__file__))
+init = os.path.join(HERE, "src", "etools_permissions", "__init__.py")
+
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
+_name_re = re.compile(r'NAME\s+=\s+(.*)')
+
+with open(init, 'rb') as f:
+    content = f.read().decode('utf-8')
+    VERSION = str(ast.literal_eval(_version_re.search(content).group(1)))
+    name = str(ast.literal_eval(_name_re.search(content).group(1)))
 
 
 def read(*files):
@@ -20,6 +30,7 @@ def read(*files):
 
 class VerifyTagVersion(install):
     """Verify that the git tag matches version"""
+
     def run(self):
         tag = os.getenv("CIRCLE_TAG")
         if tag != VERSION:
@@ -30,13 +41,30 @@ class VerifyTagVersion(install):
             sys.exit(info)
 
 
+class PyTest(TestCommand):
+    user_options = [('pytest-args=', 'a', "Arguments to pass to pytest")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = ''
+
+    def run_tests(self):
+        import shlex
+        # import here, cause outside the eggs aren't loaded
+        import pytest
+        errno = pytest.main(shlex.split(self.pytest_args))
+        sys.exit(errno)
+
+
+tests_requires = read("src/requirements/test.txt")
+
 setup(
-    name='etools-permissions',
+    name='etools_permissions',
+    version=VERSION,
     url='https://github.com/unicef/etools-permissions',
     author='UNICEF',
     author_email='rapidpro@unicef.org',
     description='Permissions handling for eTools',
-    version=VERSION,
     long_description=read('README.rst'),
     platforms=['any'],
     license='Apache 2 License',
@@ -48,14 +76,19 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=find_packages(),
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     include_package_data=True,
-    package_data={
-        '': ['*.rst'],
-        'realm': ['realm/*'],
+    install_requires=read("src/requirements/install.txt"),
+    tests_requires=tests_requires,
+    extras_require={
+        'dev': tests_requires,
     },
-    install_requires=read("requirements/base.txt"),
-    cmdclass={"verify": VerifyTagVersion}
+    cmdclass={
+        "verify": VerifyTagVersion,
+        'test': PyTest,
+    }
 )

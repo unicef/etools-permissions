@@ -1,11 +1,13 @@
-# UNICEF Realm
+eTools Permissions
+##################
 
-Realm deals with Authorization only.
+Permissions deals with Authorization only.
 Authentication is considered outside the scope, and is expected it will be handled by a request to an Azure AD instance.
-Any backend overriding for authentication needs to inherit from `realm.models.backends.RealmBackend`
+Any backend overriding for authentication needs to inherit from `etools_permissions.models.backends.RealmBackend`
 
 
-## Objective
+Objective
+=========
 
 Create a package that handles authorization of users, that may or may not require `workspace` and/or `organization` relationships relative to the user.
 
@@ -22,7 +24,8 @@ AUTH_REQUIRES_ORGANIZATION = True
 AUTH_REQUIRES_WORKSPACE = True
 
 
-## Requirements
+Requirements
+============
 
 The following packages are being used, and so we can safely expect them to be present.
 - Django
@@ -30,11 +33,109 @@ The following packages are being used, and so we can safely expect them to be pr
 - django-tenant-schemas
 
 
-## Possible Option
+Installation
+============
 
-### Django
+.. code-block:: bash
+   pip install etools-validator
 
-#### Models
+
+Setup
+=====
+
+Settings
+--------
+
+Add the package to your `INSTALLED_APPS`
+
+    INSTALLED_APPS [
+        ...
+        'etools_permissions',
+        ...
+    ]
+
+Change the authentication backend
+
+    AUTHENTICATION_BACKEND = 'etools_permissions.backends.RealmBackend'
+
+Add the following settings;
+
+    AUTH_REQUIRES_ORGANIZATION = True
+    AUTH_REQUIRES_WORKSPACE= True
+    ORGANIZATION_MODEL = 'example.Organization'
+    WORKSPACE_MODEL = 'tenant.Workspace'
+
+
+Contributing
+============
+
+Environment Setup
+-----------------
+
+To install the necessary libraries
+
+::
+
+   $ make develop
+
+
+Coding Standards
+----------------
+
+See `PEP 8 Style Guide for Python Code <https://www.python.org/dev/peps/pep-0008/>`_ for complete details on the coding standards.
+
+To run checks on the code to ensure code is in compliance
+
+::
+
+   $ make lint
+
+
+Testing
+-------
+
+Testing is important and tests are located in `tests/` directory and can be run with;
+
+::
+
+   $ make test
+
+Coverage report is viewable in `build/coverage` directory, and is generated after running tests
+
+
+Links
+-----
+
++--------------------+----------------+--------------+--------------------+
+| Stable             |                | |master-cov| |                    |
++--------------------+----------------+--------------+--------------------+
+| Development        |                | |dev-cov|    |                    |
++--------------------+----------------+--------------+--------------------+
+| Source Code        |https://github.com/unicef/etools-permissions        |
++--------------------+----------------+-----------------------------------+
+| Issue tracker      |https://github.com/unicef/etools-permissions/issues |
++--------------------+----------------+-----------------------------------+
+
+
+.. |master-cov| image:: https://circleci.com/gh/unicef/etools-permissions/tree/master.svg?style=svg
+                    :target: https://circleci.com/gh/unicef/etools-permissions/tree/master
+
+
+.. |dev-cov| image:: https://circleci.com/gh/unicef/etools-permissions/tree/develop.svg?style=svg
+                    :target: https://circleci.com/gh/unicef/etools-permissions/tree/develop
+
+
+
+Below is just some history on the initially development/thoughts on this package.
+
+Possible Option
+===============
+
+Django
+------
+
+Models
+~~~~~~
 
 Create `Realm` model that is a join of `User`, `Workspace`, and `Organization` with `Workspace`, and `Organization` being nullable. Based on settings, can determine if we expect `Workspace`, and/or `Organization` is required when saved etc.
 This model should have the same methods as `PermissionsMixin` class, and it is expected that this object will be used when calling `has_perms`
@@ -51,12 +152,14 @@ May need to handle the helper functions for common logic between `User` and `Ano
 - `_user_has_module_perms`
 
 
-#### Backends
+Backends
+~~~~~~~~
 
 Customize `ModelBackend` overwriting all the permission methods, to make use of the `Realm` object
 
 
-### DjangoRestFramework
+DjangoRestFramework
+-------------------
 
 Overwrite/customize the following permission classes;
 
@@ -66,12 +169,14 @@ Overwrite/customize the following permission classes;
 Both of these methods recieve the `request` object as a parameter, and so we can extract `Workspace` and/or `Organization` from that as and when needed, based on settings. If required and not present we can either raise `Http404` or return `False` at this point. If information is provided, we can create a `realm` object and call `has_perm` on it, that mimics the `user.has_perms`
 
 
-### Django Tenant Schemas
+Django Tenant Schemas
+---------------------
 
 `django-tenant-schemas` should not actually be required for this package, but since we use it, it is best to incorporate in our example to ensure no surprises.
 
 
-## Testing Prototype
+Testing Prototype
+=================
 
 Using each scenario defined above in `Objective`
 Using default authentication (on UserModel)
@@ -83,27 +188,3 @@ For each of the GET, OPTIONS, HEAD, POST, PUT, PATCH, and DELETE methods;
  3. Make request as authenticated user with direct permissions (not using group)
  4. Make request as authenticated user with group permissions
  5. Make request as authenticated user with module/object permissions
-
-
-## Setup
-
-### Settings
-
-Add the package to your `INSTALLED_APPS`
-
-    INSTALLED_APPS [
-        ...
-        'realm',
-        ...
-    ]
-
-Change the authentication backend
-
-    AUTHENTICATION_BACKEND = 'realm.backends.RealmBackend'
-
-Add the following settings;
-
-    AUTH_REQUIRES_ORGANIZATION = True
-    AUTH_REQUIRES_WORKSPACE= True
-    ORGANIZATION_MODEL = 'example.Organization'
-    WORKSPACE_MODEL = 'tenant.Workspace'

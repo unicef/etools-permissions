@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from rest_framework import status
 
-from realm.models import Permission
+from etools_permissions.models import Permission
 from tests.base import BaseTestCase
 from tests.factories import (
     OrganizationFactory,
@@ -30,7 +30,7 @@ class TestOrganizationListAPIView(BaseTestCase):
         self.permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_DISALLOW,
-            target="realm.permission.*"
+            target="etools_permissions.permission.*"
         )
         self.view_permission = PermissionFactory(
             permission=Permission.VIEW,
@@ -97,7 +97,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_DISALLOW,
-            target="realm.permission.*"
+            target="etools_permissions.permission.*"
         )
         self.view_permission = PermissionFactory(
             permission=Permission.VIEW,

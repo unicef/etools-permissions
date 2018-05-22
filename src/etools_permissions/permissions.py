@@ -1,8 +1,7 @@
 from rest_framework import exceptions, serializers
 from rest_framework.permissions import BasePermission
 
-
-from realm.models import Permission
+from etools_permissions.models import Permission
 
 
 class RealmPermission(BasePermission):

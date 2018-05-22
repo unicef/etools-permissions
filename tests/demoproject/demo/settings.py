@@ -32,7 +32,7 @@ SHARED_APPS = [
 
 TENANT_APPS = [
     'demo.example',
-    'realm',
+    'etools_permissions',
 ]
 
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS
@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'realm.middleware.RealmAuthMiddleware',
+    'etools_permissions.middleware.RealmAuthMiddleware',
 ]
 
 ROOT_URLCONF = 'demo.urls'
@@ -127,8 +127,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 
-AUTHENTICATION_BACKENDS = ['realm.backends.RealmBackend']
-# AUTH_USER_MODEL = 'realm.User'
+AUTHENTICATION_BACKENDS = ['etools_permissions.backends.RealmBackend']
 AUTH_REQUIRES_ORGANIZATION = True
 AUTH_REQUIRES_WORKSPACE = True
 ORGANIZATION_MODEL = 'example.Organization'

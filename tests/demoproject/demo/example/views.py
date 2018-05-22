@@ -4,7 +4,7 @@ from rest_framework.generics import RetrieveAPIView, ListAPIView
 
 from demo.example.models import Organization
 from demo.example.serializers import OrganizationSerializer
-from realm.permissions import RealmPermission
+from etools_permissions.permissions import RealmPermission
 
 
 class OrganizationListView(ListView):

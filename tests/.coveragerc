@@ -1,0 +1,13 @@
+[run]
+branch = true
+source = etools_permissions
+
+[report]
+fail_under = 70
+ignore_errors = True
+exclude_lines =
+   pragma: no cover
+
+[html]
+directory = build/coverage
+title = eTools Permissions Coverage report

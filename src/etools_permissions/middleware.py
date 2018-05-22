@@ -4,7 +4,7 @@ from django.utils.functional import SimpleLazyObject
 
 
 def get_realm(request):
-    from realm.utils import get_realm
+    from etools_permissions.utils import get_realm
     if not hasattr(request, '_cached_realm'):
         request._cached_realm = get_realm(request)
     return request._cached_realm

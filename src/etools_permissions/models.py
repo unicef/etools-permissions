@@ -7,8 +7,8 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.translation import ugettext as _
 
-from realm.conditions import BaseCondition
-from realm.utils import collect_parent_models, collect_child_models
+from etools_permissions.conditions import BaseCondition
+from etools_permissions.utils import collect_child_models, collect_parent_models
 
 
 class PermissionQuerySet(models.QuerySet):

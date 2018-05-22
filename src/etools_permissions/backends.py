@@ -1,7 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
 
-from realm.models import Permission, Realm
+from etools_permissions.models import Permission, Realm
 
 
 class RealmBackend(ModelBackend):

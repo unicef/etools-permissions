@@ -1,13 +1,12 @@
 from django.db.models import OneToOneField
 from django.utils.crypto import constant_time_compare
 
-
 SESSION_KEY = '_auth_realm_id'
 HASH_SESSION_KEY = '_auth_realm_hash'
 
 
 def _get_realm_session_key(request):
-    from realm.models import Realm
+    from etools_permissions.models import Realm
 
     # This value in the session is always serialized to a string, so we need
     # to convert it back to Python whenever we access it.
@@ -20,7 +19,7 @@ def get_realm(request):
     Expect tenant attribute to be set on request in Workspace in use,
     if user not set or user is superuser, then no tenant
     """
-    from realm.models import Realm
+    from etools_permissions.models import Realm
 
     realm = None
     if request.user is not None and not request.user.is_superuser:
@@ -46,7 +45,7 @@ def set_realm(request, realm):
     Persist a realm id in the request. This way a realm doesn't
     have to set on every request.
     """
-    from realm.models import Realm
+    from etools_permissions.models import Realm
 
     session_auth_hash = ''
     if realm is None:

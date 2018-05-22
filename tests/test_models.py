@@ -1,6 +1,6 @@
 from django.db.utils import IntegrityError
 
-from realm.models import Group, Permission, Realm
+from etools_permissions.models import Group, Permission, Realm
 from tests.base import SCHEMA_NAME, BaseTestCase
 from tests.factories import (
     GroupFactory,
@@ -16,23 +16,23 @@ class TestPermission(BaseTestCase):
         permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="realm.permission.*"
+            target="etools_permissions.permission.*"
         )
         self.assertEqual(
             str(permission),
-            "Allow permission to view realm.permission.* at []"
+            "Allow permission to view etools_permissions.permission.* at []"
         )
 
     def test_filter_by_targets_for_wildcards(self):
         permission = PermissionFactory(
             permission=Permission.VIEW,
-            target='realm.permission.*'
+            target='etools_permissions.permission.*'
         )
 
         targets = [
-            'realm.permission.permission',
-            'realm.permission.permission_type',
-            'realm.permission.target',
+            'etools_permissions.permission.permission',
+            'etools_permissions.permission.permission_type',
+            'etools_permissions.permission.target',
         ]
         permissions = Permission.objects.filter_by_targets(targets)
         self.assertSequenceEqual(permissions, [permission])
@@ -40,11 +40,11 @@ class TestPermission(BaseTestCase):
     def test_filter_by_targets_empty(self):
         PermissionFactory(
             permission=Permission.VIEW,
-            target='realm.permission.*'
+            target='etools_permissions.permission.*'
         )
 
         targets = [
-            'realm.group.*',
+            'etools_permissions.group.*',
         ]
         permissions = Permission.objects.filter_by_targets(targets)
         self.assertSequenceEqual(permissions, [])
@@ -52,12 +52,12 @@ class TestPermission(BaseTestCase):
     def test_filter_by_targets(self):
         permission = PermissionFactory(
             permission=Permission.VIEW,
-            target='realm.permission.*'
+            target='etools_permissions.permission.*'
         )
 
         targets = [
-            'realm.permission.*',
-            'realm.group.*'
+            'etools_permissions.permission.*',
+            'etools_permissions.group.*'
         ]
         permissions = Permission.objects.filter_by_targets(targets)
         self.assertSequenceEqual(permissions, [permission])
@@ -65,7 +65,7 @@ class TestPermission(BaseTestCase):
     def test_filter_by_context(self):
         permission = PermissionFactory(
             permission=Permission.VIEW,
-            target="realm.permission.*",
+            target="etools_permissions.permission.*",
             condition=["basic"]
         )
         contexts = [
@@ -77,7 +77,7 @@ class TestPermission(BaseTestCase):
     def test_filter_by_context_empty(self):
         PermissionFactory(
             permission=Permission.VIEW,
-            target="realm.permission.*",
+            target="etools_permissions.permission.*",
             condition=["basic"]
         )
         contexts = [
@@ -89,7 +89,7 @@ class TestPermission(BaseTestCase):
     def test_filter_by_context_list(self):
         permission = PermissionFactory(
             permission=Permission.VIEW,
-            target="realm.permission.*",
+            target="etools_permissions.permission.*",
             condition=["basic"]
         )
         contexts = [
@@ -102,27 +102,27 @@ class TestPermission(BaseTestCase):
         PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target='realm.permission.*'
+            target='etools_permissions.permission.*'
         )
         target = Permission.get_target(Permission, "permission")
-        self.assertEqual(target, "realm.permission.permission")
+        self.assertEqual(target, "etools_permissions.permission.permission")
 
     def test_apply_permissions_different_kinds(self):
         PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target='realm.permission.permission'
+            target='etools_permissions.permission.permission'
         )
         PermissionFactory(
             permission=Permission.EDIT,
             permission_type=Permission.TYPE_ALLOW,
-            target='realm.permission.target'
+            target='etools_permissions.permission.target'
         )
 
         targets = [
-            'realm.permission.permission',
-            'realm.permission.permission_type',
-            'realm.permission.target',
+            'etools_permissions.permission.permission',
+            'etools_permissions.permission.permission_type',
+            'etools_permissions.permission.target',
         ]
 
         allowed_targets = Permission.apply_permissions(
@@ -132,7 +132,10 @@ class TestPermission(BaseTestCase):
         )
         self.assertSequenceEqual(
             allowed_targets,
-            ['realm.permission.permission', 'realm.permission.target']
+            [
+                'etools_permissions.permission.permission',
+                'etools_permissions.permission.target'
+            ]
         )
 
         allowed_targets = Permission.apply_permissions(
@@ -140,30 +143,33 @@ class TestPermission(BaseTestCase):
             targets,
             Permission.EDIT,
         )
-        self.assertSequenceEqual(allowed_targets, ['realm.permission.target'])
+        self.assertSequenceEqual(
+            allowed_targets,
+            ['etools_permissions.permission.target']
+        )
 
     def test_apply_permissions_order(self):
         PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target='realm.permission.*'
+            target='etools_permissions.permission.*'
         )
         PermissionFactory(
             permission=Permission.VIEW,
-            target='realm.permission.target',
+            target='etools_permissions.permission.target',
             permission_type=Permission.TYPE_DISALLOW,
         )
         PermissionFactory(
             permission=Permission.VIEW,
-            target='realm.permission.permission_type',
+            target='etools_permissions.permission.permission_type',
             permission_type=Permission.TYPE_DISALLOW,
             condition=['condition1']
         )
 
         targets = [
-            'realm.permission.permission',
-            'realm.permission.permission_type',
-            'realm.permission.target',
+            'etools_permissions.permission.permission',
+            'etools_permissions.permission.permission_type',
+            'etools_permissions.permission.target',
         ]
 
         allowed_targets = Permission.apply_permissions(
@@ -173,12 +179,12 @@ class TestPermission(BaseTestCase):
         )
         self.assertSequenceEqual(
             allowed_targets,
-            ['realm.permission.permission']
+            ['etools_permissions.permission.permission']
         )
 
         PermissionFactory(
             permission=Permission.VIEW,
-            target='realm.permission.target',
+            target='etools_permissions.permission.target',
             permission_type=Permission.TYPE_ALLOW,
             condition=['condition1', 'condition2']
         )
@@ -190,7 +196,10 @@ class TestPermission(BaseTestCase):
         )
         self.assertSequenceEqual(
             allowed_targets,
-            ['realm.permission.target', 'realm.permission.permission']
+            [
+                'etools_permissions.permission.target',
+                'etools_permissions.permission.permission'
+            ]
         )
 
 

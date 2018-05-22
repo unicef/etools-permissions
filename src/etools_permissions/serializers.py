@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from realm.models import Realm
+from etools_permissions.models import Realm
 
 
 class RealmSerializer(serializers.ModelSerializer):

@@ -5,7 +5,7 @@ import factory
 from factory import fuzzy
 
 from demo.example.models import Organization
-from realm import models
+from etools_permissions import models
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -29,7 +29,7 @@ class PermissionFactory(factory.django.DjangoModelFactory):
     permission_type = fuzzy.FuzzyChoice(
         [x[0] for x in models.Permission.TYPE_CHOICES]
     )
-    target = "realm.permission.*"
+    target = "etools_permissions.permission.*"
 
     class Meta:
         model = models.Permission

@@ -3,10 +3,11 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-import django.contrib.postgres.fields
+from django.contrib.postgres import fields
 from django.db import migrations, models
-import django.db.models.deletion
-import realm.models
+from django.db.models import deletion
+
+from etools_permissions.models import GroupManager
 
 
 class Migration(migrations.Migration):
@@ -40,7 +41,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'groups',
             },
             managers=[
-                ('objects', realm.models.GroupManager()),
+                ('objects', GroupManager()),
             ],
         ),
         migrations.CreateModel(
@@ -63,7 +64,7 @@ class Migration(migrations.Migration):
                     verbose_name='permission type'
                 )),
                 ('target', models.CharField(max_length=100, verbose_name='target')),
-                ('condition', django.contrib.postgres.fields.ArrayField(
+                ('condition', fields.ArrayField(
                     base_field=models.CharField(max_length=100),
                     blank=True,
                     default=[],
@@ -87,12 +88,12 @@ class Migration(migrations.Migration):
                     'A realm will get all permissions granted to each of their groups.',
                     related_name='realm_set',
                     related_query_name='realm',
-                    to='realm.Group',
+                    to='etools_permissions.Group',
                     verbose_name='groups'
                 )),
                 ('organization', models.ForeignKey(
                     null=True,
-                    on_delete=django.db.models.deletion.CASCADE,
+                    on_delete=deletion.CASCADE,
                     to='example.Organization'
                 )),
                 ('realm_permissions', models.ManyToManyField(
@@ -100,16 +101,16 @@ class Migration(migrations.Migration):
                     help_text='Specific permissions for this realm.',
                     related_name='realm_set',
                     related_query_name='realm',
-                    to='realm.Permission',
+                    to='etools_permissions.Permission',
                     verbose_name='realm permissions'
                 )),
                 ('user', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE,
+                    on_delete=deletion.CASCADE,
                     to=settings.AUTH_USER_MODEL
                 )),
                 ('workspace', models.ForeignKey(
                     null=True,
-                    on_delete=django.db.models.deletion.CASCADE,
+                    on_delete=deletion.CASCADE,
                     to='tenant.Workspace'
                 )),
             ],
@@ -119,7 +120,7 @@ class Migration(migrations.Migration):
             name='permissions',
             field=models.ManyToManyField(
                 blank=True,
-                to='realm.Permission',
+                to='etools_permissions.Permission',
                 verbose_name='permissions'
             ),
         ),
