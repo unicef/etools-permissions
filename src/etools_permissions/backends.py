@@ -103,6 +103,9 @@ class RealmBackend(ModelBackend):
             if perm_target[-1] == '*':
                 if target.startswith(perm_target[:-1]):
                     return True
+            else:
+                if perm_target == target:
+                    return True
 
         return False
 

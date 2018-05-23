@@ -37,6 +37,16 @@ class TestOrganizationListAPIView(BaseTestCase):
             permission_type=Permission.TYPE_ALLOW,
             target="example.organization.*"
         )
+        self.view_field_id_permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.id"
+        )
+        self.view_field_name_permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.name"
+        )
 
     def test_get_not_logged_in(self):
         response = self.client.get(reverse('demo:organization-api-list'))
@@ -89,6 +99,42 @@ class TestOrganizationListAPIView(BaseTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], self.organization.pk)
 
+    def test_get_permission_field(self):
+        """If not using realm serializer mixin, then permissions on all fields
+        is required for user to have permissions to view.
+        """
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization,
+            workspace=self.tenant,
+        )
+        realm.realm_permissions.add(self.view_field_id_permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse('demo:organization-api-list'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_permission_field_all(self):
+        """If not using realm serializer mixin, then permissions on all fields
+        is required for user to have permissions to view.
+        """
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization,
+            workspace=self.tenant,
+        )
+        realm.realm_permissions.add(self.view_field_id_permission)
+        realm.realm_permissions.add(self.view_field_name_permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse('demo:organization-api-list'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.organization.pk)
+        self.assertEqual(response.data[0]["name"], self.organization.name)
+
 
 class TestOrganizationDetailAPIView(BaseTestCase):
     def setUp(self):
@@ -103,6 +149,16 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
             target="example.organization.*"
+        )
+        self.view_field_id_permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.id"
+        )
+        self.view_field_name_permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.name"
         )
 
     def test_get_not_logged_in(self):
@@ -173,3 +229,46 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["id"], self.organization.pk)
+
+    def test_get_permission_field(self):
+        """If using realm serializer mixin, then permissions on all fields
+        is not required for user to have permissions to view.
+        """
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization,
+            workspace=self.tenant,
+        )
+        realm.realm_permissions.add(self.view_field_name_permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                'demo:organization-api-detail',
+                args=[self.organization.pk]
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], self.organization.name)
+        self.assertNotIn("id", response.data.keys())
+
+    def test_get_permission_field_all(self):
+        """If using realm serializer mixin, then permissions on all fields
+        is not required for user to have permissions to view.
+        """
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization,
+            workspace=self.tenant,
+        )
+        realm.realm_permissions.add(self.view_field_id_permission)
+        realm.realm_permissions.add(self.view_field_name_permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                'demo:organization-api-detail',
+                args=[self.organization.pk]
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.organization.pk)
+        self.assertEqual(response.data["name"], self.organization.name)

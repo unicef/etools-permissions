@@ -310,12 +310,24 @@ class Realm(models.Model):
                 return False
         return False
 
-    def has_perms(self, perm_list, obj=None):
+    def has_perms(self, perm_list, obj=None, field_limited=False):
         """
         Return True if the realm has each of the specified permissions. If
         object is passed, check if the realm has all required perms for it.
+
+        Unless field_limited parameter is True, then return True if any
+        of the fields are found to match, False if none match.
+        It is expected that the limiting of fields will be
+        managed/handled downstream.
         """
-        return all(self.has_perm(perm, obj) for perm in perm_list)
+        if field_limited:
+            return any(self.has_perm(perm, obj) for perm in perm_list)
+        else:
+            return all(self.has_perm(perm, obj) for perm in perm_list)
+
+    def has_field_perms(self, field_list):
+        """Return subset of fields that user has permissions to"""
+        return [field for field in field_list if self.has_perm(field)]
 
     # def has_module_perms(self, app_label):
     #     """
