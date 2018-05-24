@@ -136,6 +136,112 @@ class TestOrganizationListAPIView(BaseTestCase):
         self.assertEqual(response.data[0]["name"], self.organization.name)
 
 
+class TestOrganizationOpenListAPIView(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.organization = OrganizationFactory()
+
+    def test_get_not_logged_in(self):
+        response = self.client.get(reverse('demo:organization-api-list-open'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_no_permission(self):
+        user = UserFactory()
+        self.client.force_login(user)
+        response = self.client.get(reverse('demo:organization-api-list-open'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestOrganizationQuerysetAPIView(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.organization_1 = OrganizationFactory(name="Org 1")
+        self.organization_2 = OrganizationFactory(name="Org 2")
+        self.permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_DISALLOW,
+            target="etools_permissions.permission.*"
+        )
+        self.view_permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.*"
+        )
+
+    def test_get_not_logged_in(self):
+        response = self.client.get(
+            reverse('demo:organization-api-list-queryset')
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_no_permission(self):
+        user = UserFactory()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse('demo:organization-api-list-queryset')
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get(self):
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization_1,
+            workspace=self.tenant,
+        )
+        realm.realm_permissions.add(self.view_permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse('demo:organization-api-list-queryset'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+
+class TestOrganizationGetQuerysetAPIView(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.organization_1 = OrganizationFactory(name="Org 1")
+        self.organization_2 = OrganizationFactory(name="Org 2")
+        self.permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_DISALLOW,
+            target="etools_permissions.permission.*"
+        )
+        self.view_permission = PermissionFactory(
+            permission=Permission.VIEW,
+            permission_type=Permission.TYPE_ALLOW,
+            target="example.organization.*"
+        )
+
+    def test_get_not_logged_in(self):
+        response = self.client.get(
+            reverse('demo:organization-api-list-getqueryset')
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_no_permission(self):
+        user = UserFactory()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse('demo:organization-api-list-getqueryset')
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get(self):
+        realm = RealmFactory(
+            user=self.user,
+            organization=self.organization_1,
+            workspace=self.tenant,
+        )
+        realm.realm_permissions.add(self.view_permission)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse('demo:organization-api-list-getqueryset'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+
 class TestOrganizationDetailAPIView(BaseTestCase):
     def setUp(self):
         super().setUp()

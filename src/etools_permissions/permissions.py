@@ -107,12 +107,17 @@ class RealmPermission(BasePermission):
         Prefer to use fields per serializer as the default, more accurate?
         Otherwise use queryset
         """
-        serializer_cls = view.get_serializer_class()
-        if serializer_cls:
-            return self._permissions_by_serializer(
-                request.method,
-                serializer_cls
-            )
+        try:
+            serializer_cls = view.get_serializer_class()
+            if serializer_cls:
+                return self._permissions_by_serializer(
+                    request.method,
+                    serializer_cls
+                )
+        except AttributeError:
+            # view does not have a serializer class, which is acceptable
+            pass
+
         return self._permissions_by_queryset(request.method, view)
 
     def has_permission(self, request, view):

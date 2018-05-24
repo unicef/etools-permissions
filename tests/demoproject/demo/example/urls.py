@@ -1,25 +1,36 @@
 from django.conf.urls import url
 
-from demo.example.views import (
-    OrganizationDetailAPIView,
-    OrganizationListView,
-    OrganizationListAPIView,
-)
+from demo.example import views
 
 urlpatterns = [
     url(
         r'^organization/$',
-        OrganizationListView.as_view(),
+        views.OrganizationListView.as_view(),
         name='organization-list'
     ),
     url(
         r'^api/organization/$',
-        OrganizationListAPIView.as_view(),
+        views.OrganizationListAPIView.as_view(),
         name='organization-api-list'
     ),
     url(
+        r'^api/organization/open/$',
+        views.OrganizationOpenListAPIView.as_view(),
+        name='organization-api-list-open'
+    ),
+    url(
+        r'^api/organization/queryset/$',
+        views.OrganizationQuerysetAPIView.as_view(),
+        name='organization-api-list-queryset'
+    ),
+    url(
+        r'^api/organization/getqueryset/$',
+        views.OrganizationGetQuerysetAPIView.as_view(),
+        name='organization-api-list-getqueryset'
+    ),
+    url(
         r'^api/organization/(?P<pk>\d+)/$',
-        OrganizationDetailAPIView.as_view(),
+        views.OrganizationDetailAPIView.as_view(),
         name='organization-api-detail'
     ),
 ]
