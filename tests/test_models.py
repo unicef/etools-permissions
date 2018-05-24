@@ -321,17 +321,3 @@ class TestRealm(BaseTestCase):
         realm = RealmFactory(workspace=self.tenant)
         realm.realm_permissions.add(self.permission)
         self.assertTrue(realm.has_perms([self.permission.target]))
-
-    # def test_has_module_perms_superuser(self):
-    #     user = UserFactory(is_superuser=True)
-    #     realm = RealmFactory(user=user, workspace=self.tenant)
-    #     self.assertTrue(realm.has_module_perms(self.permission_app_label))
-
-    # def test_has_module_perms_false(self):
-    #     realm = RealmFactory(workspace=self.tenant)
-    #     self.assertFalse(realm.has_module_perms(self.permission_app_label))
-
-    # def test_has_module_perms(self):
-    #     realm = RealmFactory(workspace=self.tenant)
-    #     realm.realm_permissions.add(self.permission)
-    #     self.assertTrue(realm.has_module_perms(self.permission_app_label))

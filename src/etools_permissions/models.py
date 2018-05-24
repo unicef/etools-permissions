@@ -324,28 +324,3 @@ class Realm(models.Model):
             return any(self.has_perm(perm, obj) for perm in perm_list)
         else:
             return all(self.has_perm(perm, obj) for perm in perm_list)
-
-    def has_field_perms(self, field_list):
-        """Return subset of fields that user has permissions to"""
-        return [field for field in field_list if self.has_perm(field)]
-
-    # def has_module_perms(self, app_label):
-    #     """
-    #     Return True if the user has any permissions in the given app label.
-    #     Use simlar logic as has_perm(), above.
-    #     """
-    #     # Active superusers have all permissions.
-    #     if self.user.is_active and self.user.is_superuser:
-    #         return True
-
-    #     for backend in get_backends():
-    #         if not hasattr(backend, 'has_module_perms'):
-    #             continue
-    #         try:
-    #             if backend.has_module_perms(self, app_label):
-    #                 return True
-    #         # A backend can raise `PermissionDenied` to short-circuit
-    #         # permission checking.
-    #         except PermissionDenied:
-    #             return False
-    #     return False
