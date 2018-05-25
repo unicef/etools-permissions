@@ -230,9 +230,20 @@ class Group(models.Model):
 
 
 class Realm(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    workspace = models.ForeignKey(settings.WORKSPACE_MODEL, null=True)
-    organization = models.ForeignKey(settings.ORGANIZATION_MODEL, null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    workspace = models.ForeignKey(
+        settings.WORKSPACE_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    organization = models.ForeignKey(
+        settings.ORGANIZATION_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+    )
     groups = models.ManyToManyField(
         Group,
         verbose_name=_('groups'),
