@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('tenant', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         migrations.swappable_dependency(settings.ORGANIZATION_MODEL),
+        migrations.swappable_dependency(settings.WORKSPACE_MODEL),
     ]
 
     operations = [
@@ -111,7 +111,7 @@ class Migration(migrations.Migration):
                 ('workspace', models.ForeignKey(
                     null=True,
                     on_delete=deletion.CASCADE,
-                    to='tenant.Workspace'
+                    to=settings.WORKSPACE_MODEL
                 )),
             ],
         ),
