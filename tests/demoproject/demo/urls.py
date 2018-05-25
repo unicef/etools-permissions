@@ -7,5 +7,5 @@ from demo.tenant.views import IndexView
 urlpatterns = [
     url(r'^$', IndexView.as_view(), name='home'),
     url(r'^admin/', admin.site.urls),
-    url(r'^demo/', include(demo_patterns, namespace='demo')),
+    url(r'^demo/', include((demo_patterns, 'example'), namespace='demo')),
 ]
