@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
 from etools_permissions import utils
