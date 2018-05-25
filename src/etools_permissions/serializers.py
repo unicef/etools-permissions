@@ -1,6 +1,4 @@
-from rest_framework import serializers
-
-from etools_permissions.models import Permission, Realm
+from etools_permissions.models import Permission
 
 
 class RealmSerializerMixin:
@@ -25,9 +23,3 @@ class RealmSerializerMixin:
     def _readable_fields(self):
         fields = super()._readable_fields
         return self._limit_fields_by_permission(fields, Permission.VIEW)
-
-
-class RealmSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Realm
-        fields = "__all__"
