@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('example', '0001_initial'),
         ('tenant', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency(settings.ORGANIZATION_MODEL),
     ]
 
     operations = [
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
                 ('organization', models.ForeignKey(
                     null=True,
                     on_delete=deletion.CASCADE,
-                    to='example.Organization'
+                    to=settings.ORGANIZATION_MODEL
                 )),
                 ('realm_permissions', models.ManyToManyField(
                     blank=True,
