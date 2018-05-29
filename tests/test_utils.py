@@ -11,11 +11,15 @@ class TestGetRealm(BaseTestCase):
         self.factory = APIRequestFactory()
 
     def test_no_user(self):
-        request = self.factory.post(reverse('demo:organization-api-list'))
+        request = self.factory.post(
+            reverse('organization:organization-api-list')
+        )
         request.user = None
         self.assertIsNone(utils.get_realm(request))
 
     def test_anonymous_user(self):
-        request = self.factory.post(reverse('demo:organization-api-list'))
+        request = self.factory.post(
+            reverse('organization:organization-api-list')
+        )
         request.user = AnonymousUser()
         self.assertIsNone(utils.get_realm(request))

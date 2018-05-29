@@ -19,7 +19,7 @@ class TestIndexView(BaseTestCase):
 
 class TestOrganizationListView(BaseTestCase):
     def test_get(self):
-        response = self.client.get(reverse('demo:organization-list'))
+        response = self.client.get(reverse('organization:organization-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -35,27 +35,27 @@ class TestOrganizationListAPIView(BaseTestCase):
         self.view_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.*"
+            target="organization.organization.*"
         )
         self.view_field_id_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.id"
+            target="organization.organization.id"
         )
         self.view_field_name_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.name"
+            target="organization.organization.name"
         )
 
     def test_get_not_logged_in(self):
-        response = self.client.get(reverse('demo:organization-api-list'))
+        response = self.client.get(reverse('organization:organization-api-list'))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_no_permission(self):
         user = UserFactory()
         self.client.force_login(user)
-        response = self.client.get(reverse('demo:organization-api-list'))
+        response = self.client.get(reverse('organization:organization-api-list'))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_invalid_permission(self):
@@ -67,7 +67,7 @@ class TestOrganizationListAPIView(BaseTestCase):
         realm.permissions.add(self.permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list'),
+            reverse('organization:organization-api-list'),
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -80,7 +80,7 @@ class TestOrganizationListAPIView(BaseTestCase):
         realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list'),
+            reverse('organization:organization-api-list'),
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -93,7 +93,7 @@ class TestOrganizationListAPIView(BaseTestCase):
         realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list'),
+            reverse('organization:organization-api-list'),
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -111,7 +111,7 @@ class TestOrganizationListAPIView(BaseTestCase):
         realm.permissions.add(self.view_field_id_permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list'),
+            reverse('organization:organization-api-list'),
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -128,7 +128,7 @@ class TestOrganizationListAPIView(BaseTestCase):
         realm.permissions.add(self.view_field_name_permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list'),
+            reverse('organization:organization-api-list'),
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -142,13 +142,13 @@ class TestOrganizationOpenListAPIView(BaseTestCase):
         self.organization = OrganizationFactory()
 
     def test_get_not_logged_in(self):
-        response = self.client.get(reverse('demo:organization-api-list-open'))
+        response = self.client.get(reverse('organization:organization-api-list-open'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_no_permission(self):
         user = UserFactory()
         self.client.force_login(user)
-        response = self.client.get(reverse('demo:organization-api-list-open'))
+        response = self.client.get(reverse('organization:organization-api-list-open'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -165,12 +165,12 @@ class TestOrganizationQuerysetAPIView(BaseTestCase):
         self.view_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.*"
+            target="organization.organization.*"
         )
 
     def test_get_not_logged_in(self):
         response = self.client.get(
-            reverse('demo:organization-api-list-queryset')
+            reverse('organization:organization-api-list-queryset')
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -178,7 +178,7 @@ class TestOrganizationQuerysetAPIView(BaseTestCase):
         user = UserFactory()
         self.client.force_login(user)
         response = self.client.get(
-            reverse('demo:organization-api-list-queryset')
+            reverse('organization:organization-api-list-queryset')
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -191,7 +191,7 @@ class TestOrganizationQuerysetAPIView(BaseTestCase):
         realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list-queryset'),
+            reverse('organization:organization-api-list-queryset'),
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -210,12 +210,12 @@ class TestOrganizationGetQuerysetAPIView(BaseTestCase):
         self.view_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.*"
+            target="organization.organization.*"
         )
 
     def test_get_not_logged_in(self):
         response = self.client.get(
-            reverse('demo:organization-api-list-getqueryset')
+            reverse('organization:organization-api-list-getqueryset')
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -223,7 +223,7 @@ class TestOrganizationGetQuerysetAPIView(BaseTestCase):
         user = UserFactory()
         self.client.force_login(user)
         response = self.client.get(
-            reverse('demo:organization-api-list-getqueryset')
+            reverse('organization:organization-api-list-getqueryset')
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -236,7 +236,7 @@ class TestOrganizationGetQuerysetAPIView(BaseTestCase):
         realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
-            reverse('demo:organization-api-list-getqueryset'),
+            reverse('organization:organization-api-list-getqueryset'),
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -254,23 +254,23 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.view_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.*"
+            target="organization.organization.*"
         )
         self.view_field_id_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.id"
+            target="organization.organization.id"
         )
         self.view_field_name_permission = PermissionFactory(
             permission=Permission.VIEW,
             permission_type=Permission.TYPE_ALLOW,
-            target="example.organization.name"
+            target="organization.organization.name"
         )
 
     def test_get_not_logged_in(self):
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             )
         )
@@ -281,7 +281,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.client.force_login(user)
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             )
         )
@@ -297,7 +297,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             ),
         )
@@ -313,7 +313,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             ),
         )
@@ -329,7 +329,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             ),
         )
@@ -349,7 +349,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             ),
         )
@@ -371,7 +371,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
-                'demo:organization-api-detail',
+                'organization:organization-api-detail',
                 args=[self.organization.pk]
             ),
         )

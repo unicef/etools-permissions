@@ -27,12 +27,12 @@ SHARED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'etools_permissions',
+    'demo.organization',
     'demo.tenant',
 ]
 
 TENANT_APPS = [
-    'demo.example',
-    'etools_permissions',
 ]
 
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS
@@ -131,5 +131,5 @@ DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 AUTHENTICATION_BACKENDS = ['etools_permissions.backends.RealmBackend']
 AUTH_REQUIRES_ORGANIZATION = True
 AUTH_REQUIRES_WORKSPACE = True
-ORGANIZATION_MODEL = 'example.Organization'
+ORGANIZATION_MODEL = 'organization.Organization'
 WORKSPACE_MODEL = 'tenant.Workspace'

@@ -1,10 +1,10 @@
 from django.conf.urls import url
 
-from demo.example import views
+from demo.organization import views
 
 urlpatterns = [
     url(
-        r'^organization/$',
+        r'^/$',
         views.OrganizationListView.as_view(),
         name='organization-list'
     ),

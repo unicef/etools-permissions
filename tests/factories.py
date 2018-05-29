@@ -4,7 +4,7 @@ import factory
 
 from factory import fuzzy
 
-from demo.example.models import Organization
+from demo.organization.models import Organization
 from etools_permissions import models
 
 

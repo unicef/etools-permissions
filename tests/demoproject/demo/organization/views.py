@@ -4,8 +4,8 @@ from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from demo.example.models import Organization
-from demo.example.serializers import (
+from demo.organization.models import Organization
+from demo.organization.serializers import (
     OrganizationFieldLimitSerializer,
     OrganizationSerializer,
 )
