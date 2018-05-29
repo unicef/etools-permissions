@@ -10,8 +10,9 @@ class RealmSerializerMixin:
                 permission_type,
                 Permission.get_target(self.Meta.model, field)
             )
-            if self.context["request"].realm.has_perm(field_target):
-                valid_fields.append(field)
+            if hasattr(self.context["request"], "realm"):
+                if self.context["request"].realm.has_perm(field_target):
+                    valid_fields.append(field)
         return valid_fields
 
     @property
