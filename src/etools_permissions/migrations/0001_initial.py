@@ -96,13 +96,13 @@ class Migration(migrations.Migration):
                     on_delete=deletion.CASCADE,
                     to=settings.ORGANIZATION_MODEL
                 )),
-                ('realm_permissions', models.ManyToManyField(
+                ('permissions', models.ManyToManyField(
                     blank=True,
                     help_text='Specific permissions for this realm.',
                     related_name='realm_set',
                     related_query_name='realm',
                     to='etools_permissions.Permission',
-                    verbose_name='realm permissions'
+                    verbose_name='permissions'
                 )),
                 ('user', models.ForeignKey(
                     on_delete=deletion.CASCADE,

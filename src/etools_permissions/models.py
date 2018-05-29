@@ -255,9 +255,9 @@ class Realm(models.Model):
         related_name="realm_set",
         related_query_name="realm",
     )
-    realm_permissions = models.ManyToManyField(
+    permissions = models.ManyToManyField(
         Permission,
-        verbose_name=_('realm permissions'),
+        verbose_name=_('permissions'),
         blank=True,
         help_text=_('Specific permissions for this realm.'),
         related_name="realm_set",

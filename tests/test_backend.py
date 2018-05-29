@@ -39,7 +39,7 @@ class TestRealmBackend(BaseTestCase):
 
     def test_internal_get_realm_permissions(self):
         realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         perms = self.backend._get_realm_permissions(realm)
         self.assertEqual(len(perms), 1)
         self.assertIn(self.permission, perms)
@@ -81,7 +81,7 @@ class TestRealmBackend(BaseTestCase):
 
     def test_internal_get_permissions_realm(self):
         realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         perms = self.backend._get_permissions(realm, None, "realm")
         self.assertEqual(len(perms), 1)
         self.assertIn(self.permission_label, perms)
@@ -107,7 +107,7 @@ class TestRealmBackend(BaseTestCase):
 
     def test_get_permissions_realm(self):
         realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         perms = self.backend.get_realm_permissions(realm, None)
         self.assertEqual(len(perms), 1)
         self.assertIn(self.permission_label, perms)
@@ -147,7 +147,7 @@ class TestRealmBackend(BaseTestCase):
         group.permissions.add(self.permission)
         realm = RealmFactory(workspace=self.tenant)
         realm.groups.add(group)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         perms = self.backend.get_all_permissions(realm)
         self.assertEqual(len(perms), 1)
         self.assertIn(self.permission_label, perms)
@@ -169,7 +169,7 @@ class TestRealmBackend(BaseTestCase):
     def test_has_perm(self):
         user = UserFactory()
         realm = RealmFactory(user=user, workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         self.assertTrue(self.backend.has_perm(user, self.permission.target))
 
     # def test_has_module_perms_user_not_active(self):
@@ -180,7 +180,7 @@ class TestRealmBackend(BaseTestCase):
 
     # def test_has_module_perms_bad_label(self):
     #     realm = RealmFactory(workspace=self.tenant)
-    #     realm.realm_permissions.add(self.permission)
+    #     realm.permissions.add(self.permission)
     #     perm = self.backend.has_module_perms(realm, "wrong")
     #     self.assertFalse(perm)
 
@@ -191,6 +191,6 @@ class TestRealmBackend(BaseTestCase):
 
     # def test_has_module_perms(self):
     #     realm = RealmFactory(workspace=self.tenant)
-    #     realm.realm_permissions.add(self.permission)
+    #     realm.permissions.add(self.permission)
     #     perm = self.backend.has_module_perms(realm, self.permission_app_label)
     #     self.assertTrue(perm)

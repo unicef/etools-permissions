@@ -12,7 +12,7 @@ class RealmBackend(ModelBackend):
             raise PermissionDenied
 
     def _get_realm_permissions(self, realm):
-        return realm.realm_permissions.all()
+        return realm.permissions.all()
 
     def _get_group_permissions(self, realm):
         realm_groups_field = Realm._meta.get_field('groups')
@@ -58,7 +58,7 @@ class RealmBackend(ModelBackend):
     def get_realm_permissions(self, realm, obj=None):
         """
         Return a set of permission strings the `realm` has from their
-        `realm_permissions`.
+        `permissions`.
         """
         return self._get_permissions(realm, obj, 'realm')
 

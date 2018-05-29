@@ -64,7 +64,7 @@ class TestOrganizationListAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list'),
@@ -77,7 +77,7 @@ class TestOrganizationListAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant_other,
         )
-        realm.realm_permissions.add(self.view_permission)
+        realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list'),
@@ -90,7 +90,7 @@ class TestOrganizationListAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_permission)
+        realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list'),
@@ -108,7 +108,7 @@ class TestOrganizationListAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_field_id_permission)
+        realm.permissions.add(self.view_field_id_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list'),
@@ -124,8 +124,8 @@ class TestOrganizationListAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_field_id_permission)
-        realm.realm_permissions.add(self.view_field_name_permission)
+        realm.permissions.add(self.view_field_id_permission)
+        realm.permissions.add(self.view_field_name_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list'),
@@ -188,7 +188,7 @@ class TestOrganizationQuerysetAPIView(BaseTestCase):
             organization=self.organization_1,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_permission)
+        realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list-queryset'),
@@ -233,7 +233,7 @@ class TestOrganizationGetQuerysetAPIView(BaseTestCase):
             organization=self.organization_1,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_permission)
+        realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('demo:organization-api-list-getqueryset'),
@@ -293,7 +293,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
@@ -309,7 +309,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant_other,
         )
-        realm.realm_permissions.add(self.view_permission)
+        realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
@@ -325,7 +325,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_permission)
+        realm.permissions.add(self.view_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
@@ -345,7 +345,7 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_field_name_permission)
+        realm.permissions.add(self.view_field_name_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(
@@ -366,8 +366,8 @@ class TestOrganizationDetailAPIView(BaseTestCase):
             organization=self.organization,
             workspace=self.tenant,
         )
-        realm.realm_permissions.add(self.view_field_id_permission)
-        realm.realm_permissions.add(self.view_field_name_permission)
+        realm.permissions.add(self.view_field_id_permission)
+        realm.permissions.add(self.view_field_name_permission)
         self.client.force_login(self.user)
         response = self.client.get(
             reverse(

@@ -294,7 +294,7 @@ class TestRealm(BaseTestCase):
 
     def test_get_all_permissions(self):
         realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         perms = realm.get_all_permissions()
         self.assertEqual(len(perms), 1)
         self.assertIn(self.permission_label, perms)
@@ -310,7 +310,7 @@ class TestRealm(BaseTestCase):
 
     def test_has_perm(self):
         realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         self.assertTrue(realm.has_perm(self.permission.target))
 
     def test_has_perms_false(self):
@@ -319,5 +319,5 @@ class TestRealm(BaseTestCase):
 
     def test_has_perms(self):
         realm = RealmFactory(workspace=self.tenant)
-        realm.realm_permissions.add(self.permission)
+        realm.permissions.add(self.permission)
         self.assertTrue(realm.has_perms([self.permission.target]))
