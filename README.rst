@@ -58,6 +58,14 @@ Change the authentication backend
 
     AUTHENTICATION_BACKEND = 'etools_permissions.backends.RealmBackend'
 
+Update middleware
+
+    MIDDLEWARE = [
+        ...
+        'etools_permissions.middleware.RealmAuthMiddleware',
+        ...
+    ]
+
 Add the following settings;
 
     AUTH_REQUIRES_ORGANIZATION = True
