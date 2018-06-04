@@ -1,10 +1,7 @@
 from collections import defaultdict
 
+from django.contrib.auth.models import Group as GroupDjango, Permission as PermissionDjango
 from django.core.management import BaseCommand
-from django.contrib.auth.models import (
-    Group as GroupDjango,
-    Permission as PermissionDjango
-)
 
 from etools_permissions.models import Group, Permission
 
