@@ -33,6 +33,7 @@ SHARED_APPS = [
 ]
 
 TENANT_APPS = [
+    'demo.sample',
 ]
 
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS
