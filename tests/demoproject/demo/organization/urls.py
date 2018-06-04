@@ -4,7 +4,7 @@ from demo.organization import views
 
 urlpatterns = [
     url(
-        r'^/$',
+        r'^$',
         views.OrganizationListView.as_view(),
         name='organization-list'
     ),
