@@ -3,7 +3,7 @@ branch = true
 source = etools_permissions
 
 [report]
-fail_under = 80
+fail_under = 85
 ignore_errors = True
 exclude_lines =
    pragma: no cover
