@@ -20,6 +20,8 @@ ALLOWED_HOSTS = ["*"]
 
 SHARED_APPS = [
     'tenant_schemas',
+    'demo.tenant',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,7 +31,6 @@ SHARED_APPS = [
 
     'etools_permissions',
     'demo.organization',
-    'demo.tenant',
 ]
 
 TENANT_APPS = [
@@ -80,7 +81,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'tenant_schemas.postgresql_backend',
         'HOST': '127.0.0.1',
-        'NAME': 'etools_realm',
+        'NAME': 'etools_permissions',
         'USER': 'postgres',
     }
 }
