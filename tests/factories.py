@@ -1,15 +1,17 @@
 from django.contrib.auth import get_user_model
 
 import factory
-
+from demo.organization.models import Organization
+from demo.sample.models import Author, Book, ChildrensBook, Stats
 from factory import fuzzy
 
-from demo.organization.models import Organization
 from etools_permissions import models
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    username = fuzzy.FuzzyText(length=100)
+    username = fuzzy.FuzzyText()
+    email = factory.Sequence(lambda n: "user{}@example.com".format(n))
+    password = factory.PostGenerationMethodCall('set_password', '123')
 
     class Meta:
         model = get_user_model()
@@ -46,3 +48,38 @@ class RealmFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Realm
+
+
+class AuthorFactory(factory.django.DjangoModelFactory):
+    name = fuzzy.FuzzyText(length=20)
+
+    class Meta:
+        model = Author
+
+
+class BookFactory(factory.django.DjangoModelFactory):
+    name = fuzzy.FuzzyText(length=20)
+    author = factory.SubFactory(AuthorFactory)
+    previous = None
+
+    class Meta:
+        model = Book
+
+
+class ChildrensBookFactory(factory.django.DjangoModelFactory):
+    name = fuzzy.FuzzyText(length=20)
+    author = factory.SubFactory(AuthorFactory)
+    max_age = fuzzy.FuzzyInteger(1, 10)
+    previous = None
+
+    class Meta:
+        model = ChildrensBook
+
+
+class StatsFactory(factory.django.DjangoModelFactory):
+    approve = fuzzy.FuzzyInteger(0, 1000)
+    disapprove = fuzzy.FuzzyInteger(0, 1000)
+    book = factory.SubFactory(BookFactory)
+
+    class Meta:
+        model = Stats
