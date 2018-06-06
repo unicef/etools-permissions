@@ -2,9 +2,10 @@ from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
-from demo.sample.models import Book, ChildrensBook, Stats
+from demo.sample.models import Author, Book, ChildrensBook, Stats
 from etools_permissions import utils
 from tests.base import BaseTestCase
+from tests.factories import RealmFactory
 
 
 class TestGetRealm(BaseTestCase):
@@ -26,10 +27,58 @@ class TestGetRealm(BaseTestCase):
         self.assertIsNone(utils.get_realm(request))
 
 
+class TestSetRealm(BaseTestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.request = self.factory.post(
+            reverse('organization:organization-api-list')
+        )
+        self.request.session = self.client.session
+        self.realm = RealmFactory(workspace=self.tenant)
+
+    def test_realm_none(self):
+        self.request.realm = self.realm
+        utils.set_realm(self.request, None)
+        self.assertEqual(
+            self.request.session[utils.SESSION_KEY],
+            str(self.realm.pk)
+        )
+        self.assertEqual(self.request.realm, self.realm)
+
+    def test_has_session(self):
+        self.request.session[utils.SESSION_KEY] = str(self.realm.pk)
+        utils.set_realm(self.request, self.realm)
+        self.assertEqual(
+            self.request.session[utils.SESSION_KEY],
+            str(self.realm.pk)
+        )
+        # self.assertEqual(self.request.realm, self.realm)
+
+    def test_has_different_session(self):
+        self.request.session[utils.SESSION_KEY] = str(404)
+        utils.set_realm(self.request, self.realm)
+        self.assertEqual(
+            self.request.session[utils.SESSION_KEY],
+            str(self.realm.pk)
+        )
+
+
 class TestCollectParentModels(BaseTestCase):
     def test_level_zero(self):
         result = utils.collect_parent_models(None, levels=0)
         self.assertEqual(result, [])
+
+    def test_no_parent(self):
+        result = utils.collect_parent_models(Author)
+        self.assertEqual(result, [])
+
+    def test_parent(self):
+        result = utils.collect_parent_models(ChildrensBook)
+        self.assertEqual(result, [Book])
+
+    def test_parent_levels(self):
+        result = utils.collect_parent_models(ChildrensBook, levels=2)
+        self.assertEqual(result, [Book])
 
 
 class TestCollectChildModels(BaseTestCase):
