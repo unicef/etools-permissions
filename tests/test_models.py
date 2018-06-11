@@ -263,9 +263,10 @@ class TestRealm(BaseTestCase):
 
     def test_save_no_workspace_exception(self):
         org = OrganizationFactory(name="Org")
-        with self.assertRaisesRegexp(IntegrityError, "Workspace value"):
-            r = Realm(user=self.user, organization=org)
-            r.save()
+        with self.settings(AUTH_REQUIRES_WORKSPACE=True):
+            with self.assertRaisesRegexp(IntegrityError, "Workspace value"):
+                r = Realm(user=self.user, organization=org)
+                r.save()
         self.assertIsNone(r.workspace)
 
     def test_save_no_organization(self):
@@ -274,9 +275,10 @@ class TestRealm(BaseTestCase):
             r.save()
 
     def test_save_no_organization_exception(self):
-        with self.assertRaisesRegexp(IntegrityError, "Organization value"):
-            r = Realm(user=self.user, workspace=self.tenant)
-            r.save()
+        with self.settings(AUTH_REQUIRES_ORGANIZATION=True):
+            with self.assertRaisesRegexp(IntegrityError, "Organization value"):
+                r = Realm(user=self.user, workspace=self.tenant)
+                r.save()
 
     def test_get_permissions_empty(self):
         realm = RealmFactory(workspace=self.tenant)

@@ -131,7 +131,7 @@ STATIC_URL = '/static/'
 DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 
 AUTHENTICATION_BACKENDS = ['etools_permissions.backends.RealmBackend']
-AUTH_REQUIRES_ORGANIZATION = True
-AUTH_REQUIRES_WORKSPACE = True
+AUTH_REQUIRES_ORGANIZATION = False
+AUTH_REQUIRES_WORKSPACE = False
 ORGANIZATION_MODEL = 'organization.Organization'
 WORKSPACE_MODEL = 'tenant.Workspace'
