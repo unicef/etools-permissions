@@ -1,0 +1,5 @@
+django-tenant-schemas
+django
+djangorestframework
+psycopg2
+pytz
