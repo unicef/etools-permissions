@@ -37,7 +37,7 @@ Installation
 ============
 
 .. code-block:: bash
-   pip install etools-validator
+   pip install etools-permissions
 
 
 Setup
