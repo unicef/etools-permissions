@@ -1,6 +1,6 @@
+from demo.organization.models import Organization
 from rest_framework import serializers
 
-from demo.organization.models import Organization
 from etools_permissions.serializers import RealmSerializerMixin
 
 

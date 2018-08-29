@@ -1,14 +1,12 @@
 from django.views.generic import ListView
+
+from demo.organization.models import Organization
+from demo.organization.serializers import OrganizationFieldLimitSerializer, OrganizationSerializer
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from demo.organization.models import Organization
-from demo.organization.serializers import (
-    OrganizationFieldLimitSerializer,
-    OrganizationSerializer,
-)
 from etools_permissions.permissions import RealmPermission
 
 

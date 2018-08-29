@@ -1,14 +1,10 @@
 from django.urls import reverse
+
 from rest_framework import status
+from tests.base import BaseTestCase
+from tests.factories import OrganizationFactory, PermissionFactory, RealmFactory, UserFactory
 
 from etools_permissions.models import Permission
-from tests.base import BaseTestCase
-from tests.factories import (
-    OrganizationFactory,
-    PermissionFactory,
-    RealmFactory,
-    UserFactory,
-)
 
 
 class TestIndexView(BaseTestCase):

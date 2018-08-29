@@ -1,14 +1,10 @@
 from django.core.exceptions import PermissionDenied
 
+from tests.base import BaseTestCase
+from tests.factories import GroupFactory, PermissionFactory, RealmFactory, UserFactory
+
 from etools_permissions.backends import RealmBackend
 from etools_permissions.models import Permission
-from tests.base import BaseTestCase
-from tests.factories import (
-    GroupFactory,
-    PermissionFactory,
-    RealmFactory,
-    UserFactory,
-)
 
 
 class TestRealmBackend(BaseTestCase):

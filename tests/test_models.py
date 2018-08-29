@@ -1,14 +1,9 @@
 from django.db.utils import IntegrityError
 
+from tests.base import BaseTestCase, SCHEMA_NAME
+from tests.factories import GroupFactory, OrganizationFactory, PermissionFactory, RealmFactory, UserFactory
+
 from etools_permissions.models import Group, Permission, Realm
-from tests.base import SCHEMA_NAME, BaseTestCase
-from tests.factories import (
-    GroupFactory,
-    OrganizationFactory,
-    PermissionFactory,
-    RealmFactory,
-    UserFactory,
-)
 
 
 class TestPermission(BaseTestCase):

@@ -1,11 +1,12 @@
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
-from rest_framework.test import APIRequestFactory
 
 from demo.sample.models import Author, Book, ChildrensBook, Stats
-from etools_permissions import utils
+from rest_framework.test import APIRequestFactory
 from tests.base import BaseTestCase
 from tests.factories import RealmFactory
+
+from etools_permissions import utils
 
 
 class TestGetRealm(BaseTestCase):

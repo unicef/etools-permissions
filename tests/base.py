@@ -1,10 +1,10 @@
 from django.db import connection
-from rest_framework.test import APIClient
+
 from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 from tenant_schemas.test.cases import TenantTestCase
 from tenant_schemas.test.client import TenantClient
 from tenant_schemas.utils import get_tenant_model
-
 from tests.factories import UserFactory
 
 TENANT_DOMAIN = 'tenant.example.com'

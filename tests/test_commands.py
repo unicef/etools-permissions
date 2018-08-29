@@ -1,12 +1,10 @@
-from django.contrib.auth.models import (
-    Group as DjangoGroup,
-    Permission as DjangoPermission,
-)
+from django.contrib.auth.models import Group as DjangoGroup, Permission as DjangoPermission
 from django.core.management import call_command
 
-from etools_permissions.models import Group, Permission, Realm
-from tests.factories import UserFactory
 from tests.base import BaseTestCase
+from tests.factories import UserFactory
+
+from etools_permissions.models import Group, Permission, Realm
 
 
 class TestMigratePermissions(BaseTestCase):
